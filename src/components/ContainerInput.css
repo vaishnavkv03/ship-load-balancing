@@ -1,0 +1,206 @@
+/* Base Styles */
+.container-input {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.input-hero {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.input-hero h1 {
+  color: #005b96;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.input-hero p {
+  font-size: 1.2rem;
+  color: #7f8c8d;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 40px;
+}
+
+/* Ship Visual Section */
+.ship-visual {
+  flex: 1;
+  position: relative;
+}
+
+.ship-image {
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.ship-image:hover {
+  transform: scale(1.02);
+}
+
+.ship-info-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  backdrop-filter: blur(5px);
+  animation: slideUp 0.6s ease-out;
+}
+
+.ship-info-card h3 {
+  color: #005b96;
+  margin-top: 0;
+}
+
+.ship-info-card ol {
+  padding-left: 20px;
+}
+
+.ship-info-card li {
+  margin-bottom: 8px;
+}
+
+/* Form Styles */
+.container-form {
+  flex: 1;
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #005b96;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #005b96;
+  box-shadow: 0 0 0 2px rgba(0, 91, 150, 0.2);
+  outline: none;
+}
+
+.container-row {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 15px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.container-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Buttons */
+.remove-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.remove-btn:hover {
+  background: #c0392b;
+  transform: scale(1.1);
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.add-btn, .submit-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-btn {
+  background: #ecf0f1;
+  color: #005b96;
+}
+
+.add-btn:hover {
+  background: #d6dbdf;
+}
+
+.submit-btn {
+  background: #005b96;
+  color: white;
+}
+
+.submit-btn:hover {
+  background: #004080;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+  
+  .container-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
