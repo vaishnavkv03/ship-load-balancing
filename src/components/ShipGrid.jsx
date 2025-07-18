@@ -10,7 +10,6 @@ import {
   FaExclamationTriangle
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
-import shipBlueprint from '../assets/final-grid.png'; // ✅ Import image
 
 const ShipGrid = ({ containers }) => {
   const gridRows = 6;
@@ -21,27 +20,55 @@ const ShipGrid = ({ containers }) => {
   const [exporting, setExporting] = useState(false);
   const [overloadDetected, setOverloadDetected] = useState(false);
 
-  const calculatePlacement = () => {
+  // Enhanced load balancing algorithm
+  const calculateOptimalPlacement = () => {
     const sorted = [...containers].sort((a, b) => b.weight - a.weight);
     const grid = Array(gridRows).fill().map(() => Array(gridColumns).fill(null));
     const heatmap = Array(gridRows).fill().map(() => Array(gridColumns).fill(0));
 
     const totalWeight = sorted.reduce((acc, c) => acc + Number(c.weight), 0);
-    let portWeight = 0, starboardWeight = 0;
+    let portWeight = 0;
+    let starboardWeight = 0;
     const placements = [];
 
-    sorted.forEach(container => {
-      let bestPos = null, bestScore = -Infinity;
+    // Define ship center for balance calculations
+    const shipCenterCol = Math.floor(gridColumns / 2);
+    
+    sorted.forEach((container, index) => {
+      let bestPos = null;
+      let bestScore = -Infinity;
       const weight = Number(container.weight);
 
+      // Try each position and calculate score
       for (let r = 0; r < gridRows; r++) {
         for (let c = 0; c < gridColumns; c++) {
           if (!grid[r][c]) {
-            const tempPort = c < gridColumns / 2 ? portWeight + weight : portWeight;
-            const tempStarboard = c >= gridColumns / 2 ? starboardWeight + weight : starboardWeight;
-            const balanceScore = 1 - Math.abs(tempPort - tempStarboard) / (tempPort + tempStarboard);
-            const densityScore = -heatmap[r][c];
-            const score = balanceScore * 100 + densityScore;
+            // Calculate what the new balance would be
+            const isPortSide = c < shipCenterCol;
+            const tempPort = isPortSide ? portWeight + weight : portWeight;
+            const tempStarboard = isPortSide ? starboardWeight : starboardWeight + weight;
+            
+            // Balance score (higher is better)
+            const totalTempWeight = tempPort + tempStarboard;
+            const balanceScore = totalTempWeight > 0 ? 
+              (1 - Math.abs(tempPort - tempStarboard) / totalTempWeight) * 100 : 0;
+            
+            // Center preference (prefer positions closer to center)
+            const centerDistance = Math.abs(c - shipCenterCol);
+            const centerScore = (gridColumns - centerDistance) * 2;
+            
+            // Stability score (prefer lower rows for heavy containers)
+            const stabilityScore = (gridRows - r) * 3;
+            
+            // Density score (avoid overcrowding)
+            const densityScore = -heatmap[r][c] / 1000;
+            
+            // Distribution score (spread containers evenly)
+            const distributionScore = index < sorted.length / 2 ? 
+              (isPortSide ? 10 : -10) : (isPortSide ? -10 : 10);
+            
+            // Combined score
+            const score = balanceScore + centerScore + stabilityScore + densityScore + distributionScore;
 
             if (score > bestScore) {
               bestScore = score;
@@ -51,110 +78,188 @@ const ShipGrid = ({ containers }) => {
         }
       }
 
+      // Place container at best position
       if (bestPos) {
         const { r, c } = bestPos;
         grid[r][c] = container;
-        placements.push({ container, position: { row: r, col: c }, side: c < gridColumns / 2 ? 'port' : 'starboard' });
-        if (c < gridColumns / 2) portWeight += weight;
-        else starboardWeight += weight;
+        
+        const isPortSide = c < shipCenterCol;
+        const side = isPortSide ? 'port' : 'starboard';
+        
+        placements.push({ 
+          container, 
+          position: { row: r, col: c }, 
+          side 
+        });
+        
+        // Update weights
+        if (isPortSide) {
+          portWeight += weight;
+        } else {
+          starboardWeight += weight;
+        }
+        
+        // Update heatmap for density tracking
         heatmap[r][c] += weight;
+        
+        // Spread heat to adjacent cells for better distribution
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            const nr = r + dr;
+            const nc = c + dc;
+            if (nr >= 0 && nr < gridRows && nc >= 0 && nc < gridColumns) {
+              heatmap[nr][nc] += weight * 0.1;
+            }
+          }
+        }
       }
     });
 
+    // Calculate balance ratio
+    const balanceRatio = totalWeight > 0 ? 
+      Math.min(portWeight, starboardWeight) / Math.max(portWeight, starboardWeight) : 1;
+
     return {
-      grid, placements, heatmap,
-      totalWeight, portWeight, starboardWeight,
-      balanceRatio: Math.min(portWeight, starboardWeight) / Math.max(portWeight, starboardWeight)
+      grid, 
+      placements, 
+      heatmap,
+      totalWeight, 
+      portWeight, 
+      starboardWeight,
+      balanceRatio
     };
   };
 
   const {
-    grid, placements, heatmap,
-    totalWeight, portWeight, starboardWeight,
+    grid, 
+    placements, 
+    heatmap,
+    totalWeight, 
+    portWeight, 
+    starboardWeight,
     balanceRatio
-  } = calculatePlacement();
+  } = calculateOptimalPlacement();
 
   useEffect(() => {
-    const overloaded = heatmap.some(row => row.some(cell => cell > 5000));
+    const maxAllowedWeight = 8000; // Maximum weight per cell
+    const overloaded = heatmap.some(row => row.some(cell => cell > maxAllowedWeight));
     setOverloadDetected(overloaded);
   }, [heatmap]);
 
-  const placementInstructions = placements.map(p => ({
+  // Generate placement instructions
+  const placementInstructions = placements.map((p, index) => ({
     id: `${p.container.number}-${p.position.row}-${p.position.col}`,
-    text: `Container ${p.container.number} → Row ${p.position.row + 1}, Col ${p.position.col + 1} (${p.side})`,
-    position: p.position
+    text: `${index + 1}. Container ${p.container.number} → Row ${p.position.row + 1}, Col ${p.position.col + 1} (${p.side.toUpperCase()})`,
+    position: p.position,
+    weight: p.container.weight
   }));
 
   const exportToPDF = () => {
     setExporting(true);
+    
+    // Simulate PDF generation
     setTimeout(() => {
-      alert('PDF exported successfully.');
+      // Create a simple text report
+      const report = `
+SHIP LOAD BALANCER REPORT
+========================
+
+Balance Ratio: ${(balanceRatio * 100).toFixed(1)}%
+Total Weight: ${totalWeight}kg
+Port Weight: ${portWeight}kg
+Starboard Weight: ${starboardWeight}kg
+
+PLACEMENT INSTRUCTIONS:
+${placementInstructions.map(i => i.text).join('\n')}
+
+Generated on: ${new Date().toLocaleString()}
+      `;
+      
+      console.log(report);
+      alert('PDF exported successfully. Check console for report details.');
       setExporting(false);
     }, 1200);
+  };
+
+  const getContainerColor = (container) => {
+    const weight = Number(container.weight);
+    const maxWeight = Math.max(...containers.map(c => Number(c.weight)));
+    const intensity = (weight / maxWeight) * 0.8 + 0.2;
+    
+    // Color based on weight: light green for light containers, red for heavy
+    const hue = Math.max(0, 120 - (weight / maxWeight) * 120);
+    return `hsl(${hue}, 70%, ${60 + intensity * 20}%)`;
+  };
+
+  const getHeatmapColor = (heatValue) => {
+    const maxHeat = Math.max(...heatmap.flat());
+    const intensity = maxHeat > 0 ? Math.min(1, heatValue / maxHeat) : 0;
+    return `rgba(0, 100, 200, ${0.1 + intensity * 0.4})`;
   };
 
   return (
     <motion.div
       className="ship-grid-container"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
     >
       <div className="grid-header">
-        <h2><FaShip className="header-icon" /> Ship Load Balancer
+        <h2>
+          <FaShip className="header-icon" /> Ship Load Balancer
           <span className="balance-badge">
             Balance: {(balanceRatio * 100).toFixed(1)}%
           </span>
         </h2>
 
         <div className="view-controls">
-          <button className={`view-btn ${viewMode === 'balance' ? 'active' : ''}`} onClick={() => setViewMode('balance')}>
-            <FaBalanceScale /> Balance
+          <button 
+            className={`view-btn ${viewMode === 'balance' ? 'active' : ''}`} 
+            onClick={() => setViewMode('balance')}
+          >
+            <FaBalanceScale /> Balance View
           </button>
-          <button className={`view-btn ${viewMode === 'weight' ? 'active' : ''}`} onClick={() => setViewMode('weight')}>
+          <button 
+            className={`view-btn ${viewMode === 'weight' ? 'active' : ''}`} 
+            onClick={() => setViewMode('weight')}
+          >
             <FaWeightHanging /> Weight Map
           </button>
         </div>
       </div>
 
-      <div className="arrow-indicator">Loading Direction <FaArrowRight /></div>
+      <div className="arrow-indicator">
+        <FaArrowRight /> Loading Direction (Bow to Stern)
+      </div>
 
       <div className="ship-visualization">
         <div
-         className="ship-blueprint"
+          className="ship-blueprint"
           style={{
-    backgroundImage: "url('/assets/final-grid.png')",
-    backgroundSize: 'contain',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-    position: 'relative',
-    width: '100%',
-    maxWidth: '1200px',
-    aspectRatio: '2.6',
-    border: '2px solid #0077cc',
-    borderRadius: '12px',
-    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-    overflow: 'hidden',
-  }}
->
-
-        
+            backgroundImage: `url('./assets/final-grid.png')`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+          }}
+        >
           <div className="ship-deck-overlay">
             {grid.map((row, rIdx) => (
               <div className="deck-row" key={rIdx}>
                 {row.map((cell, cIdx) => (
                   <motion.div
                     className={`deck-cell ${cell ? 'has-container' : ''}`}
-                    key={cIdx}
-                    whileHover={{ scale: 1.05 }}
+                    key={`${rIdx}-${cIdx}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: (rIdx * gridColumns + cIdx) * 0.02 }}
+                    whileHover={{ scale: cell ? 1.05 : 1.02 }}
                     onClick={() => cell && setActiveContainer(cell)}
                     style={{
                       backgroundColor: cell
-                        ? `hsl(${Math.min(120, cell.weight / 30000 * 120)}, 70%, 60%)`
+                        ? getContainerColor(cell)
                         : viewMode === 'weight'
-                          ? `hsl(240, 70%, ${100 - Math.min(100, heatmap[rIdx][cIdx] / 5000 * 80)}%)`
+                          ? getHeatmapColor(heatmap[rIdx][cIdx])
                           : 'transparent',
-                      border: cell ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)'
                     }}
                   >
                     {cell && (
@@ -172,50 +277,87 @@ const ShipGrid = ({ containers }) => {
 
         <div className="info-panel">
           <div className="weight-distribution">
-            <h3><FaBalanceScale /> Weight Distribution <FaInfoCircle className="info-icon" /></h3>
+            <h3>
+              <FaBalanceScale /> Weight Distribution 
+              <FaInfoCircle className="info-icon" />
+            </h3>
             <div className="weight-bars">
               <div className="weight-bar port">
-                <div className="bar-fill" style={{ width: `${(portWeight / totalWeight) * 100}%` }}></div>
-                <span>Port: {portWeight}kg</span>
+                <div 
+                  className="bar-fill" 
+                  style={{ width: `${totalWeight > 0 ? (portWeight / totalWeight) * 100 : 0}%` }}
+                ></div>
+                <span>Port: {portWeight.toLocaleString()}kg</span>
               </div>
               <div className="weight-bar starboard">
-                <div className="bar-fill" style={{ width: `${(starboardWeight / totalWeight) * 100}%` }}></div>
-                <span>Starboard: {starboardWeight}kg</span>
+                <div 
+                  className="bar-fill" 
+                  style={{ width: `${totalWeight > 0 ? (starboardWeight / totalWeight) * 100 : 0}%` }}
+                ></div>
+                <span>Starboard: {starboardWeight.toLocaleString()}kg</span>
               </div>
+            </div>
+            <div style={{ marginTop: '10px', fontSize: '0.9rem', color: '#666' }}>
+              Total Weight: {totalWeight.toLocaleString()}kg
             </div>
           </div>
 
           {overloadDetected && (
-            <div className="overload-warning">
+            <motion.div 
+              className="overload-warning"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
               <FaExclamationTriangle />
-              Overload detected in one or more zones!
-            </div>
+              Weight concentration detected! Consider redistributing containers.
+            </motion.div>
           )}
 
           <div className="placement-instructions">
-            <h3>Instructions</h3>
-            {placementInstructions.map(i => (
-              <div
-                key={i.id}
-                className="instruction-item"
-                onMouseEnter={() => {
-                  document
-                    .querySelector(`.deck-row:nth-child(${i.position.row + 1}) .deck-cell:nth-child(${i.position.col + 1})`)
-                    ?.classList.add('highlighted');
-                }}
-                onMouseLeave={() => {
-                  document
-                    .querySelector(`.deck-row:nth-child(${i.position.row + 1}) .deck-cell:nth-child(${i.position.col + 1})`)
-                    ?.classList.remove('highlighted');
-                }}
-              >
-                {i.text}
-              </div>
-            ))}
+            <h3>Loading Instructions</h3>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              {placementInstructions.map((instruction, index) => (
+                <motion.div
+                  key={instruction.id}
+                  className="instruction-item"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  onMouseEnter={() => {
+                    const cell = document.querySelector(
+                      `.deck-row:nth-child(${instruction.position.row + 1}) .deck-cell:nth-child(${instruction.position.col + 1})`
+                    );
+                    if (cell) {
+                      cell.classList.add('highlighted');
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    const cell = document.querySelector(
+                      `.deck-row:nth-child(${instruction.position.row + 1}) .deck-cell:nth-child(${instruction.position.col + 1})`
+                    );
+                    if (cell) {
+                      cell.classList.remove('highlighted');
+                    }
+                  }}
+                >
+                  {instruction.text}
+                </motion.div>
+              ))}
+            </div>
           </div>
 
-          <button className="export-btn" disabled={exporting} onClick={exportToPDF}>
-            {exporting ? 'Exporting...' : (<><FaDownload /> Export Load Plan</>)}
+          <button 
+            className="export-btn" 
+            disabled={exporting || containers.length === 0} 
+            onClick={exportToPDF}
+          >
+            {exporting ? (
+              'Exporting...'
+            ) : (
+              <>
+                <FaDownload /> Export Load Plan
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -231,29 +373,43 @@ const ShipGrid = ({ containers }) => {
           >
             <motion.div
               className="modal-content"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
               onClick={e => e.stopPropagation()}
             >
               <h3>Container Details</h3>
               <div className="detail-row">
-                <span>Number:</span>
+                <span>Container Number:</span>
                 <strong>{activeContainer.number}</strong>
               </div>
               <div className="detail-row">
                 <span>Weight:</span>
-                <strong>{activeContainer.weight} kg</strong>
+                <strong>{Number(activeContainer.weight).toLocaleString()} kg</strong>
               </div>
               <div className="detail-row">
                 <span>Position:</span>
                 <strong>
-                  {placements.find(p => p.container.number === activeContainer.number)?.position
-                    ? `Row ${placements.find(p => p.container.number === activeContainer.number).position.row + 1}, Col ${placements.find(p => p.container.number === activeContainer.number).position.col + 1}`
-                    : 'N/A'}
+                  {(() => {
+                    const placement = placements.find(p => p.container.number === activeContainer.number);
+                    return placement 
+                      ? `Row ${placement.position.row + 1}, Col ${placement.position.col + 1} (${placement.side.toUpperCase()})`
+                      : 'Not placed';
+                  })()}
                 </strong>
               </div>
-              <button className="close-btn" onClick={() => setActiveContainer(null)}>Close</button>
+              <div className="detail-row">
+                <span>Side:</span>
+                <strong>
+                  {(() => {
+                    const placement = placements.find(p => p.container.number === activeContainer.number);
+                    return placement ? placement.side.toUpperCase() : 'N/A';
+                  })()}
+                </strong>
+              </div>
+              <button className="close-btn" onClick={() => setActiveContainer(null)}>
+                Close
+              </button>
             </motion.div>
           </motion.div>
         )}

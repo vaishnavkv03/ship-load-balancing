@@ -1,4 +1,4 @@
-/* ===== ShipGrid.css – Full Stylesheet with Blueprint Background ===== */
+/* ===== ShipGrid.css – Fixed Positioning for Cargo Area ===== */
 
 .ship-grid-container {
   max-width: 1600px;
@@ -91,7 +91,7 @@
   justify-content: center;
 }
 
-/* === SHIP BACKGROUND AND GRID OVERLAY === */
+/* === SHIP BACKGROUND AND GRID OVERLAY - FIXED POSITIONING === */
 
 .ship-blueprint {
   background-size: contain;
@@ -107,48 +107,91 @@
   overflow: hidden;
 }
 
+/* CORRECTED: Align grid overlay precisely with the green cargo area */
 .ship-deck-overlay {
   position: absolute;
-  top: 12%;
-  left: 7%;
-  width: 86%;
-  height: 76%;
+  /* Adjusted positioning to match the green cargo area exactly */
+  top: 22%;          /* Start below the ship's deck structures */
+  left: 20%;         /* Start after the ship's bow section */
+  width: 60%;        /* Cover only the cargo hold width */
+  height: 56%;       /* Cover only the cargo hold height */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 2px;          /* Small gap between rows */
 }
 
 .deck-row {
   display: flex;
   height: 100%;
   flex: 1;
+  gap: 2px;          /* Small gap between columns */
 }
 
 .deck-cell {
   flex: 1;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   position: relative;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: all 0.3s ease;
+  border-radius: 3px;
+  min-height: 40px;
+  min-width: 40px;
 }
 
 .deck-cell.highlighted {
-  outline: 3px solid yellow;
-  z-index: 5;
+  outline: 3px solid #FFD700;
+  outline-offset: 2px;
+  z-index: 10;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
 }
 
 .has-container {
   cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.has-container:hover {
+  transform: scale(1.05);
+  z-index: 5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .container-tag {
   color: #fff;
   font-weight: bold;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-align: center;
-  text-shadow: 1px 1px 3px black;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  padding: 2px 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
+}
+
+.container-tag span {
+  display: block;
+  font-size: 0.65rem;
+  margin-bottom: 1px;
+}
+
+.container-tag small {
+  font-size: 0.6rem;
+  opacity: 0.9;
+}
+
+/* === Empty cells styling === */
+.deck-cell:not(.has-container) {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.deck-cell:not(.has-container):hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* === Info Panel === */
@@ -194,19 +237,21 @@
 }
 
 .weight-bar.port .bar-fill {
-  background: #0077ccaa;
+  background: linear-gradient(90deg, #0077cc, #0099ff);
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
+  transition: width 0.5s ease;
 }
 
 .weight-bar.starboard .bar-fill {
-  background: #ff6600aa;
+  background: linear-gradient(90deg, #ff6600, #ff8844);
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
+  transition: width 0.5s ease;
 }
 
 .weight-bar span {
@@ -216,8 +261,9 @@
   transform: translateY(-50%);
   color: white;
   font-weight: bold;
+  font-size: 0.9rem;
   z-index: 2;
-  text-shadow: 1px 1px 2px black;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 .instruction-item {
@@ -228,11 +274,13 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 0.9rem;
 }
 
 .instruction-item:hover {
   background: #e0f4ff;
   transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* === Export Button === */
@@ -348,8 +396,16 @@
     align-items: center;
   }
 
+  .ship-deck-overlay {
+    /* Maintain proportions on smaller screens */
+    top: 22%;
+    left: 18%;
+    width: 64%;
+    height: 56%;
+  }
+
   .deck-row {
-    min-height: 50px;
+    min-height: 35px;
   }
 
   .info-panel {
@@ -369,6 +425,18 @@
   }
 
   .container-tag {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
+  }
+
+  .ship-deck-overlay {
+    top: 24%;
+    left: 16%;
+    width: 68%;
+    height: 52%;
+  }
+
+  .deck-cell {
+    min-height: 30px;
+    min-width: 30px;
   }
 }
