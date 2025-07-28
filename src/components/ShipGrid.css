@@ -1,442 +1,389 @@
-/* ===== ShipGrid.css – Fixed Positioning for Cargo Area ===== */
-
-.ship-grid-container {
-  max-width: 1600px;
-  margin: 40px auto;
-  padding: 30px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #fefefe;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in-out;
+/* --- 1. Global Styles & Variables --- */
+:root {
+  --primary-color: #005b96;
+  --secondary-color: #ff6600;
+  --dark-blue: #002d5b;
+  --light-gray: #f4f7f9;
+  --text-primary: #1a202c;
+  --text-secondary: #5a6678;
+  --white-color: #ffffff;
+  --border-radius-md: 12px;
+  --border-radius-lg: 20px;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 15px 40px -5px rgba(0, 0, 0, 0.1);
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.grid-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 25px;
+.homepage {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  line-height: 1.6;
+  background-color: var(--white-color);
+  overflow-x: hidden;
 }
 
-.grid-header h2 {
-  color: #003366;
-  font-size: 2.2rem;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-.header-icon {
-  font-size: 1.8rem;
-  color: #0077cc;
+.section-highlight {
+  color: var(--primary-color);
 }
 
-.balance-badge {
-  margin-left: 15px;
-  padding: 6px 14px;
-  border-radius: 50px;
-  font-size: 0.85rem;
-  font-weight: bold;
-  color: white;
-  background-color: #00aa88;
+.text-highlight {
+  color: var(--secondary-color);
 }
 
-.arrow-indicator {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #005b96;
-  font-weight: 600;
-  font-size: 1rem;
-  margin: 15px 0;
-}
 
-.view-controls {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.view-btn {
-  background: #eaeaea;
-  color: #333;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-}
-
-.view-btn.active {
-  background: #0077cc;
-  color: white;
-}
-
-.view-btn:hover {
-  background: #d0eaff;
-  transform: translateY(-1px);
-}
-
-.ship-visualization {
-  display: flex;
-  gap: 40px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-/* === SHIP BACKGROUND AND GRID OVERLAY - FIXED POSITIONING === */
-
-.ship-blueprint {
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  aspect-ratio: 2.6;
-  border: 2px solid #0077cc;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-/* CORRECTED: Align grid overlay precisely with the green cargo area */
-.ship-deck-overlay {
-  position: absolute;
-  /* Adjusted positioning to match the green cargo area exactly */
-  top: 22%;          /* Start below the ship's deck structures */
-  left: 20%;         /* Start after the ship's bow section */
-  width: 60%;        /* Cover only the cargo hold width */
-  height: 56%;       /* Cover only the cargo hold height */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 2px;          /* Small gap between rows */
-}
-
-.deck-row {
-  display: flex;
-  height: 100%;
-  flex: 1;
-  gap: 2px;          /* Small gap between columns */
-}
-
-.deck-cell {
-  flex: 1;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+/* --- 2. Hero Banner --- */
+.hero-banner {
+  height: 100vh;
+  min-height: 700px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  position: relative;
-  transition: all 0.3s ease;
-  border-radius: 3px;
-  min-height: 40px;
-  min-width: 40px;
-}
-
-.deck-cell.highlighted {
-  outline: 3px solid #FFD700;
-  outline-offset: 2px;
-  z-index: 10;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
-}
-
-.has-container {
-  cursor: pointer;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.has-container:hover {
-  transform: scale(1.05);
-  z-index: 5;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.container-tag {
-  color: #fff;
-  font-weight: bold;
-  font-size: 0.7rem;
   text-align: center;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  padding: 2px 4px;
-  border-radius: 2px;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(2px);
-}
-
-.container-tag span {
-  display: block;
-  font-size: 0.65rem;
-  margin-bottom: 1px;
-}
-
-.container-tag small {
-  font-size: 0.6rem;
-  opacity: 0.9;
-}
-
-/* === Empty cells styling === */
-.deck-cell:not(.has-container) {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-}
-
-.deck-cell:not(.has-container):hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* === Info Panel === */
-
-.info-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  min-width: 280px;
-}
-
-.weight-distribution,
-.placement-instructions {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-}
-
-.weight-distribution h3,
-.placement-instructions h3 {
-  margin-top: 0;
-  font-size: 1.1rem;
-  color: #003366;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.weight-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.weight-bar {
-  height: 30px;
-  background: #eee;
-  border-radius: 8px;
+  color: var(--white-color);
   position: relative;
   overflow: hidden;
 }
 
-.weight-bar.port .bar-fill {
-  background: linear-gradient(90deg, #0077cc, #0099ff);
-  height: 100%;
+.hero-video-wrapper {
   position: absolute;
   top: 0;
   left: 0;
-  transition: width 0.5s ease;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
-.weight-bar.starboard .bar-fill {
-  background: linear-gradient(90deg, #ff6600, #ff8844);
+.hero-video-wrapper video {
+  width: 100%;
   height: 100%;
+  object-fit: cover;
+}
+
+.hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  transition: width 0.5s ease;
-}
-
-.weight-bar span {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: white;
-  font-weight: bold;
-  font-size: 0.9rem;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 45, 91, 0.8);
   z-index: 2;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
 }
 
-.instruction-item {
-  padding: 10px;
-  margin: 8px 0;
-  background: #f1f8ff;
-  border-left: 4px solid #0077cc;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.9rem;
+.hero-content {
+  position: relative;
+  z-index: 3;
+  max-width: 800px;
 }
 
-.instruction-item:hover {
-  background: #e0f4ff;
-  transform: translateX(5px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.hero-banner h1 {
+  font-size: clamp(2.8rem, 6vw, 4.5rem);
+  font-weight: 800;
+  margin-bottom: 20px;
+  line-height: 1.1;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* === Export Button === */
+.hero-banner p {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  margin-bottom: 40px;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.9;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
 
-.export-btn {
-  background: #0077cc;
-  color: white;
+/* Hero Content Entry Animation */
+.animated-text {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slide-up-fade-in 0.8s forwards cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes slide-up-fade-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* --- 3. Features Section --- */
+.features-section {
+  padding: 120px 0;
+  background-color: var(--light-gray);
+}
+
+.features-section h2 {
+  text-align: center;
+  margin-bottom: 70px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.feature-card {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.6); /* Glassmorphism effect */
+  backdrop-filter: blur(10px);
+  padding: 40px 25px;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.feature-icon {
+  font-size: 2.8rem;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  display: inline-block;
+  transition: transform 0.4s ease, color 0.4s ease;
+}
+
+.feature-card h3 {
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.feature-card p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.feature-card:hover {
+  transform: translateY(-12px);
+  box-shadow: var(--shadow-lg);
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1) rotate(-5deg);
+  color: var(--secondary-color);
+}
+
+/* Card Shine Effect on Hover */
+.card-shine-effect {
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 60%);
+  transform: skewX(-25deg);
+  transition: left 0.7s ease-in-out;
+}
+
+.feature-card:hover .card-shine-effect {
+  left: 150%;
+}
+
+
+/* --- 4. How It Works Section --- */
+.how-it-works {
+  padding: 120px 0;
+  background-color: var(--white-color);
+}
+
+.how-it-works h2 {
+  text-align: center;
+  margin-bottom: 70px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+}
+
+.steps-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+.step-number-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.step-number {
+  width: 60px;
+  height: 60px;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  z-index: 1;
+  transition: background-color 0.4s ease, transform 0.4s ease;
+}
+
+.step-connector {
+  width: 3px;
+  flex-grow: 1;
+  background-color: #e2e8f0;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  /* Animation properties */
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.8s ease-in-out;
+}
+
+.step-content {
+  background-color: var(--light-gray);
+  padding: 30px;
+  border-radius: var(--border-radius-md);
+  flex-grow: 1;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.step:hover .step-number {
+  background-color: var(--secondary-color);
+  transform: scale(1.1);
+}
+
+.step:hover .step-content {
+  transform: translateX(10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
+}
+
+
+/* --- 5. Final CTA Section --- */
+.final-cta-section {
+  padding: 100px 0;
+  text-align: center;
+  color: var(--white-color);
+  background: linear-gradient(135deg, var(--dark-blue), var(--primary-color));
+  overflow: hidden;
+}
+
+.final-cta-section .cta-content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.final-cta-section h2 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.final-cta-section p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin-bottom: 35px;
+}
+
+
+/* --- 6. Buttons & Animations --- */
+.cta-button {
+  background: var(--secondary-color);
+  color: var(--white-color);
   border: none;
-  padding: 12px;
-  font-weight: bold;
-  border-radius: 6px;
+  padding: 16px 35px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.export-btn:hover {
-  background: #005999;
-  transform: translateY(-2px);
-}
-
-.export-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-/* === Container Modal === */
-
-.container-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.modal-content h3 {
-  margin: 0 0 15px;
-  color: #003366;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  border-bottom: 1px dashed #ccc;
-  padding-bottom: 10px;
-}
-
-.close-btn {
-  width: 100%;
-  margin-top: 20px;
-  background: #0077cc;
-  color: white;
-  border: none;
-  padding: 12px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.close-btn:hover {
-  background: #005999;
-}
-
-.overload-warning {
-  background: #fff3cd;
-  border: 1px solid #ffeeba;
-  color: #856404;
-  padding: 12px;
-  border-radius: 6px;
-  font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
+  box-shadow: 0 5px 20px rgba(255, 102, 0, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-/* === Animations === */
+.cta-button:hover {
+  background: #e55c00;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(255, 102, 0, 0.4);
+}
+
+.cta-button .btn-icon {
+  transition: transform 0.3s ease;
+}
+
+.cta-button:hover .btn-icon {
+  transform: translateX(5px);
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% { box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(255, 102, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 102, 0, 0); }
 }
 
-.highlight-animation {
-  animation: pulse 1.5s infinite;
+
+/* --- 7. Scroll Reveal Animations (using Intersection Observer) --- */
+.reveal {
+  transition: opacity 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* === Responsive === */
+/* Staggered animation for children of a revealed section */
+.reveal.is-visible .feature-card,
+.reveal.is-visible .step {
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition-delay: var(--delay);
+}
 
-@media (max-width: 992px) {
-  .ship-visualization {
+/* Animate the connector line when its parent step is visible */
+.reveal.is-visible .step-connector {
+  transform: scaleY(1);
+  transition-delay: calc(var(--delay) + 0.3s); /* Animate after the step content appears */
+}
+
+/* --- 8. Responsive Design --- */
+@media (max-width: 768px) {
+  .hero-banner { min-height: 90vh; }
+  
+  .step {
     flex-direction: column;
     align-items: center;
+    text-align: center;
+    gap: 20px;
   }
-
-  .ship-deck-overlay {
-    /* Maintain proportions on smaller screens */
-    top: 22%;
-    left: 18%;
-    width: 64%;
-    height: 56%;
-  }
-
-  .deck-row {
-    min-height: 35px;
-  }
-
-  .info-panel {
-    width: 100%;
-  }
+  .step-content { width: 100%; }
+  .step-number-wrapper { flex-direction: row; align-items: flex-start; }
+  .step-connector { display: none; /* Hide connector on mobile for simpler layout */ }
 }
 
-@media (max-width: 576px) {
-  .grid-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .view-btn {
-    flex: 1;
-    justify-content: center;
-  }
-
-  .container-tag {
-    font-size: 0.6rem;
-  }
-
-  .ship-deck-overlay {
-    top: 24%;
-    left: 16%;
-    width: 68%;
-    height: 52%;
-  }
-
-  .deck-cell {
-    min-height: 30px;
-    min-width: 30px;
-  }
+@media (max-width: 480px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .cta-button { padding: 14px 28px; font-size: 1rem; }
+  .how-it-works, .features-section, .final-cta-section { padding: 80px 0; }
 }
